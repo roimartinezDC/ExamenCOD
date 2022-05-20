@@ -74,7 +74,7 @@ public class MyBot {
     public static void main(String[] args) {
         //Utilizamos el DiscordClient, que es la clase necesaria para interacutar con Discord
         //creamos uno con el token de nuestro bot, el cual obtuve en el portal para desarrolladores de Discord, al crear el bot en mi aplicación
-        final String token = "token";
+        final String token = "OTUzNjMzMDMyMDg5MjcyMzQw.YjHZ-A.3-bsBm-GsdIj6wSVVtnWA4pP0eY";
         final DiscordClient client = DiscordClient.create(token);
         final GatewayDiscordClient gateway = client.login().block();
 
