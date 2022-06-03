@@ -98,7 +98,7 @@ public class MyBot {
                 //declaracion de los comandos
                 if ("!ping".equals(message.getContent())) {
                     final MessageChannel channel = message.getChannel().block();
-                    //con esta línea el bot muestra un mensaje con los que sele indica
+                    //con esta línea el bot muestra un mensaje con los que se le indica
                     channel.createMessage("Pong!").block();
                 }
                 if ("!embed".equals(message.getContent())) {
@@ -167,7 +167,6 @@ public class MyBot {
                             System.out.println("No files found.");
                         } else {
                             String dirImagenes = null;
-                            System.out.println("Files:");
                             for (com.google.api.services.drive.model.File file : files) {
                                 dirImagenes = file.getId();
                             }
@@ -203,7 +202,6 @@ public class MyBot {
                             System.out.println("No files found.");
                         } else {
                             String dirImagenes = null;
-                            System.out.println("Files:");
                             for (com.google.api.services.drive.model.File file : files) {
                                 dirImagenes = file.getId();
                             }
@@ -216,7 +214,7 @@ public class MyBot {
                                     .execute();
                             List<com.google.api.services.drive.model.File> filesImagenes = resultImagenes.getFiles();
                             for (com.google.api.services.drive.model.File file : filesImagenes) {
-                                channel.createMessage("Descargado ***"+archivo+"***").block();
+                                channel.createMessage(":arrow_down: Descargado ***"+archivo+"***").block();
                                 String nArch;
                                 String ext = null;
                                 if (file.getName().contains(".")) {
