@@ -20,6 +20,7 @@ import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 import discord4j.rest.util.Color;
+import com.aspose.words.*;
 
 import java.io.*;
 
@@ -29,6 +30,8 @@ import javax.swing.*;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
+
+import static reactor.core.publisher.Mono.using;
 
 public class MyBot {
     private static final String APPLICATION_NAME = "Google Drive API Java Quickstart";
@@ -74,7 +77,7 @@ public class MyBot {
     public static void main(String[] args) {
         //Utilizamos el DiscordClient, que es la clase necesaria para interacutar con Discord
         //creamos uno con el token de nuestro bot, el cual obtuve en el portal para desarrolladores de Discord, al crear el bot en mi aplicación
-        final String token = "OTUzNjMzMDMyMDg5MjcyMzQw.GoYLJZ.oxE8T9Yu_SvtaD8aC2QtVEqfWqPfsamJIeQ6Jw";
+        final String token = "OTUzNjMzMDMyMDg5MjcyMzQw.GSTwpu.OFLTyNppl6K7Vpr8Xb39T_KD08XucN9MPEePxc";
         final DiscordClient client = DiscordClient.create(token);
         final GatewayDiscordClient gateway = client.login().block();
 
@@ -199,7 +202,7 @@ public class MyBot {
                         List<com.google.api.services.drive.model.File> files = result.getFiles();
 
                         if (files == null || files.isEmpty()) {
-                            System.out.println("No files found.");
+                            System.out.println("No se encontraron archivos.");
                         } else {
                             String dirImagenes = null;
                             for (com.google.api.services.drive.model.File file : files) {
@@ -241,7 +244,47 @@ public class MyBot {
                     }
                 }
                 if ("/pdf".equals((message.getContent()))) {
+                    final MessageChannel channel = message.getChannel().block();
+                    FileList result = null;
+                    try {
+                        result = service.files().list()
+                                .setQ("name contains 'imagenesBOT' AND mimeType = 'application/vnd.google-apps.folder'")
+                                .setSpaces("drive")
+                                .setFields("nextPageToken, files(id, name)")
+                                .execute();
+                        List<com.google.api.services.drive.model.File> files = result.getFiles();
 
+                        if (files == null || files.isEmpty()) {
+                            System.out.println("No se encuentran archivos");
+                        } else {
+                            String dirGdoc = null;
+                            for (com.google.api.services.drive.model.File file : files) {
+                                dirGdoc = file.getId();
+                            }
+                            //buscar el doc en el directorio
+                            FileList resultImagenes = service.files().list()
+                                    .setQ("(mimeType = 'application/vnd.google-apps.document') AND parents in '" + dirGdoc + "'")
+                                    .setSpaces("drive")
+                                    .setFields("nextPageToken, files(id, name)")
+                                    .execute();
+                            List<com.google.api.services.drive.model.File> filesGdoc = resultImagenes.getFiles();
+                            for (com.google.api.services.drive.model.File file : filesGdoc) {
+                                channel.createMessage(file.getName()).block();
+                                OutputStream outputStream = new FileOutputStream(new java.io.File("\\Users\\roima\\Downloads\\"+file.getName()+".pdf"),true);
+
+                                service.files().export(file.getId(), "application/pdf")
+                                        .executeMediaAndDownloadTo(outputStream);
+
+                                outputStream.flush();
+                                outputStream.close();
+
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             });
             gateway.onDisconnect().block();
@@ -250,7 +293,5 @@ public class MyBot {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 }
